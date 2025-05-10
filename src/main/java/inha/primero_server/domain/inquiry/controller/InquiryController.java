@@ -21,16 +21,9 @@ public class InquiryController {
 
     //전체 문의 글 목록 조회
     @GetMapping("")
-    public List<InquiryRes> getAllInquiry() {
-        List<Inquiry> inquiryList = inquiryService.findAll();
-        List<InquiryRes> resList = new ArrayList<>();
-
-        for(Inquiry inquiry : inquiryList) {
-            resList.add(
-                    new InquiryRes(inquiry)
-            );
-        }
-        return resList;
+    public ResponseEntity<List<InquiryRes>> getAllInquiry() {
+        List<InquiryRes> resList = inquiryService.findAll();
+        return ResponseEntity.ok(resList);
     }
 
     // 문의 글 생성

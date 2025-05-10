@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -38,8 +39,16 @@ public class InquiryServiceImpl implements InquiryService{
     }
 
     @Override
-    public List<Inquiry> findAll() {
-        return inquiryRepository.findAll();
+    public List<InquiryRes> findAll() {
+        List<Inquiry> inquiryList = inquiryRepository.findAll();
+        List<InquiryRes> resList = new ArrayList<>();
+
+        for(Inquiry inquiry : inquiryList) {
+            resList.add(
+                    new InquiryRes(inquiry)
+            );
+        }
+        return resList;
     }
 
     @Override
