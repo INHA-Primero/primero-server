@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface InquiryService {
     public InquiryRes createInquiry(InquiryReq inquiryReq, String username);
-    public List<InquiryRes> findAll();
     public InquiryRes findById(Integer id);
     public void updateInquiry(Integer id, InquiryReq inquiryReq);
     public void deleteInquiry(Integer id);
+    public Page<Inquiry> index(Pageable pageable);
 }

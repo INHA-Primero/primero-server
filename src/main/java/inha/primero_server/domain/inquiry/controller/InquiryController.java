@@ -1,11 +1,17 @@
 package inha.primero_server.domain.inquiry.controller;
 
 import inha.primero_server.domain.inquiry.dto.request.InquiryReq;
+import inha.primero_server.domain.inquiry.dto.response.InquiryPagingRes;
 import inha.primero_server.domain.inquiry.dto.response.InquiryRes;
 import inha.primero_server.domain.inquiry.entity.Inquiry;
+import inha.primero_server.domain.inquiry.entity.User;
 import inha.primero_server.domain.inquiry.repository.InquiryRepository;
 import inha.primero_server.domain.inquiry.service.InquiryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,13 +24,6 @@ import java.util.List;
 public class InquiryController {
 
     private final InquiryService inquiryService;
-
-    //전체 문의 글 목록 조회
-    @GetMapping("")
-    public ResponseEntity<List<InquiryRes>> getAllInquiry() {
-        List<InquiryRes> resList = inquiryService.findAll();
-        return ResponseEntity.ok(resList);
-    }
 
     // 문의 글 생성
     @PostMapping("/{username}")
@@ -50,5 +49,19 @@ public class InquiryController {
     public ResponseEntity<Integer> deleteInquiry(@PathVariable Integer id) {
         inquiryService.deleteInquiry(id);
         return ResponseEntity.ok(id);
+    }
+
+    /**
+     * GET /inquiry
+     * 요청 예) /inquiry?page=0&size=10&sort=createdAt,desc
+     */
+    @GetMapping
+    public ResponseEntity<InquiryPagingRes> getList(
+            @PageableDefault(
+                    page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC
+            ) Pageable pageable) {
+        Page<Inquiry> page = inquiryService.index(pageable);
+        InquiryPagingRes pagingRes = InquiryPagingRes.from(page);
+        return ResponseEntity.ok(pagingRes);
     }
 }

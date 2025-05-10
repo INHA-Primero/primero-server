@@ -27,7 +27,7 @@ public class InquiryServiceImpl implements InquiryService{
     private final InquiryRepository inquiryRepository;
     private final UserRepository userRepository;
 
-    //추후 jwt 토큰을 이용해 user 정보 추출하는 것으로 수정
+    //추후 @AuthenticationPrincial 추가
     @Override
     public InquiryRes createInquiry(InquiryReq inquiryReq, String username) {
         User user = userRepository.findByUsername(username)
@@ -36,19 +36,6 @@ public class InquiryServiceImpl implements InquiryService{
         Inquiry inquiry = inquiryReq.toEntity();
         inquiryRepository.save(inquiry);
         return new InquiryRes(inquiry);
-    }
-
-    @Override
-    public List<InquiryRes> findAll() {
-        List<Inquiry> inquiryList = inquiryRepository.findAll();
-        List<InquiryRes> resList = new ArrayList<>();
-
-        for(Inquiry inquiry : inquiryList) {
-            resList.add(
-                    new InquiryRes(inquiry)
-            );
-        }
-        return resList;
     }
 
     @Override
@@ -73,5 +60,10 @@ public class InquiryServiceImpl implements InquiryService{
         Inquiry inquiry = inquiryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이디가 존재하지 않습니다. id= " + id));
         inquiryRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<Inquiry> index(Pageable pageable) {
+        return inquiryRepository.findAll(pageable);
     }
 }
