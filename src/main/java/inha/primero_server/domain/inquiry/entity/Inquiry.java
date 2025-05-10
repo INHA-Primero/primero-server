@@ -1,5 +1,6 @@
 package inha.primero_server.domain.inquiry.entity;
 
+import inha.primero_server.domain.inquiry.dto.request.InquiryReq;
 import inha.primero_server.domain.inquiry.entity.enums.Status;
 import inha.primero_server.global.BaseEntity;
 import jakarta.persistence.*;
@@ -28,8 +29,17 @@ public class Inquiry extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    /*
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;*/
+    private User user;
+
+    public void setUser(User user) {
+        this.user = user;
+        user.getInquiryList().add(this);
+    }
+
+    public void update(InquiryReq req) {
+        this.title = req.getTitle();
+        this.content = req.getContent();
+    }
 }

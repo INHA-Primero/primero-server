@@ -1,25 +1,17 @@
 package inha.primero_server.domain.inquiry.service;
 
+import inha.primero_server.domain.inquiry.dto.request.InquiryReq;
+import inha.primero_server.domain.inquiry.dto.response.InquiryRes;
 import inha.primero_server.domain.inquiry.entity.Inquiry;
-import inha.primero_server.domain.inquiry.entity.enums.Status;
-import inha.primero_server.domain.inquiry.repository.InquiryRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-@Service
-@RequiredArgsConstructor
-public class InquiryService {
+import java.util.List;
 
-    private final InquiryRepository inquiryRepository;
-
-    public void saveInquiry(){
-        for(int i = 0; i < 10; i++){
-            Inquiry inquiry = Inquiry.builder()
-                    .title("Hi" + i)
-                    .content("World!" + i)
-                    .status(Status.OPEN)
-                    .build();
-            inquiryRepository.save(inquiry);
-        }
-    }
+public interface InquiryService {
+    public InquiryRes createInquiry(InquiryReq inquiryReq, String username);
+    public List<Inquiry> findAll();
+    public InquiryRes findById(Integer id);
+    public void updateInquiry(Integer id, InquiryReq inquiryReq);
+    public void deleteInquiry(Integer id);
 }

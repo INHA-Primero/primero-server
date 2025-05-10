@@ -5,8 +5,7 @@ import lombok.Getter;
 @Getter
 public enum Status {
     OPEN("답변 대기 중"),
-    ANSWERED("답변 완료"),
-    CLOSE("종료됨");
+    ANSWERED("답변 완료");
 
     private final String label;
 
