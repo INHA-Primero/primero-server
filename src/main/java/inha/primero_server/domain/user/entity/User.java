@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -54,9 +55,8 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private Status status;
 
-    @Column
-    @
-    private List<Inquiry> inquiryList;
+    @OneToMany(mappedBy = "user")
+    private List<Inquiry> inquiryList = new ArrayList<>();
 
     public static User create(String email, String name, int studentNumber, String nickname, String password, String deviceUuid) {
         User user = new User();

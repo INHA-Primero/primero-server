@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface InquiryService {
     //InquiryRes createInquiry(InquiryReq inquiryReq, User user);
-    InquiryRes createInquiry(InquiryReq inquiryReq, Integer userId);
+    InquiryRes createInquiry(InquiryReq inquiryReq, Long userId);
 
     InquiryRes getInquiry(Integer id);
 

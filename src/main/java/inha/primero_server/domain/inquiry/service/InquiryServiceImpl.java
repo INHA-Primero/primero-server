@@ -34,7 +34,7 @@ public class InquiryServiceImpl implements InquiryService{
      * @return 문의글 작성 응답
      */
     @Override
-    public InquiryRes createInquiry(InquiryReq inquiryReq, Integer userId) { //추후 AuthenticationPrincipal 추가
+    public InquiryRes createInquiry(InquiryReq inquiryReq, Long userId) { //추후 AuthenticationPrincipal 추가
         // 1. 사용자 검증
         User user = validateUser(userId);
 
@@ -45,7 +45,7 @@ public class InquiryServiceImpl implements InquiryService{
         return new InquiryRes(inquiry);
     }
 
-    private User validateUser(Integer userId) {
+    private User validateUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User Not Found : " + userId));
     }

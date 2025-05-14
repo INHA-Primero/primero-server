@@ -45,7 +45,7 @@ public class Inquiry extends BaseEntity {
     private List<Answer> answers = new ArrayList<>();
 
     public String getWriter() {
-        return this.user.getUsername();
+        return this.user.getName();
     }
 
     public void setUser(User user) {
