@@ -12,9 +12,9 @@ spring:
 #    password:  # H2 접속 시 입력할 password 정보 (원하는 것으로 입력)
 
   datasource:
-    url: ${MYSQL_URL}
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
+    url: jdbc:mysql://localhost:3306/inharit_db
+    username: root
+    password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
