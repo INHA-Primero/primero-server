@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface AnswerService {
     AnswerRes create(Integer inquiryId, AnswerReq req);
-    List<AnswerRes> findByInquiry(Integer inquiryId);
 }

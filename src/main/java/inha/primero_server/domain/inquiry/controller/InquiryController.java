@@ -98,7 +98,13 @@ public class InquiryController {
         return ResponseEntity.ok(pagingRes);
     }
 
-    // 7) Add Answer to Inquiry (admin)
+    /**
+     * 사용자 문의 답변 API (ROLE : ADMIN)
+     *
+     * @param inquiryId 문의글 식별자
+     * @param answerReq 답변 요청
+     * @return 답변 내역을 포함하는 ResponseEntity<AnswerRes>
+     */
     @PostMapping("/{inquiryId}/answers")
     public ResponseEntity<AnswerRes> createAnswer(
             @PathVariable Integer inquiryId,
