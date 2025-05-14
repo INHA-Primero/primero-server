@@ -1,17 +1,22 @@
 package inha.primero_server.domain.inquiry.service;
 
 import inha.primero_server.domain.inquiry.dto.request.InquiryReq;
+import inha.primero_server.domain.inquiry.dto.response.InquiryPagingRes;
 import inha.primero_server.domain.inquiry.dto.response.InquiryRes;
-import inha.primero_server.domain.inquiry.entity.Inquiry;
-import org.springframework.data.domain.Page;
+import inha.primero_server.domain.inquiry.entity.User;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface InquiryService {
-    public InquiryRes createInquiry(InquiryReq inquiryReq, String username);
-    public InquiryRes findById(Integer id);
-    public void updateInquiry(Integer id, InquiryReq inquiryReq);
-    public void deleteInquiry(Integer id);
-    public Page<Inquiry> index(Pageable pageable);
+    //InquiryRes createInquiry(InquiryReq inquiryReq, User user);
+    InquiryRes createInquiry(InquiryReq inquiryReq, Integer userId);
+
+    InquiryRes getInquiry(Integer id);
+
+    void updateInquiry(Integer id, InquiryReq inquiryReq);
+
+    void deleteInquiry(Integer id);
+
+    void markAnswered(Integer id);
+
+    InquiryPagingRes list(Pageable pageable, String keyword);
 }

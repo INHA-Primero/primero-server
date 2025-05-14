@@ -6,6 +6,12 @@ import inha.primero_server.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Inquiry 엔티티는 애플리케이션의 문의글 정보를 나타냄.
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -25,17 +31,29 @@ public class Inquiry extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Builder.Default
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status status = Status.OPEN;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToMany(mappedBy = "inquiry", cascade = CascadeType.REMOVE)
+    private List<Answer> answers = new ArrayList<>();
+
+    public String getWriter() {
+        return this.user.getUsername();
+    }
+
     public void setUser(User user) {
         this.user = user;
         user.getInquiryList().add(this);
+    }
+
+    public void answered() {
+        this.status = Status.ANSWERED;
     }
 
     public void update(InquiryReq req) {
