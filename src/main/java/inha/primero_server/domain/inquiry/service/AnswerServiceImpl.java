@@ -6,12 +6,10 @@ import inha.primero_server.domain.inquiry.entity.Answer;
 import inha.primero_server.domain.inquiry.entity.Inquiry;
 import inha.primero_server.domain.inquiry.repository.AnswerRepository;
 import inha.primero_server.domain.inquiry.repository.InquiryRepository;
-import inha.primero_server.domain.inquiry.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 /**

@@ -1,7 +1,7 @@
 package inha.primero_server.domain.inquiry.entity;
 
 import inha.primero_server.domain.inquiry.dto.request.AnswerReq;
-import inha.primero_server.global.BaseEntity;
+import inha.primero_server.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

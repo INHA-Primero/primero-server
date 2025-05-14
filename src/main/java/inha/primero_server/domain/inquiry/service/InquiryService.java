@@ -3,7 +3,6 @@ package inha.primero_server.domain.inquiry.service;
 import inha.primero_server.domain.inquiry.dto.request.InquiryReq;
 import inha.primero_server.domain.inquiry.dto.response.InquiryPagingRes;
 import inha.primero_server.domain.inquiry.dto.response.InquiryRes;
-import inha.primero_server.domain.inquiry.entity.User;
 import org.springframework.data.domain.Pageable;
 
 public interface InquiryService {

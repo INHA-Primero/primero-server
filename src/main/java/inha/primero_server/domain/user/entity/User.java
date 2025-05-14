@@ -1,5 +1,6 @@
 package inha.primero_server.domain.user.entity;
 
+import inha.primero_server.domain.inquiry.entity.Inquiry;
 import inha.primero_server.global.common.entity.Role;
 import inha.primero_server.global.common.entity.Status;
 import inha.primero_server.global.common.entity.BaseEntity;
@@ -7,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Table(name = "user_tb")
@@ -50,6 +53,10 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
+
+    @Column
+    @
+    private List<Inquiry> inquiryList;
 
     public static User create(String email, String name, int studentNumber, String nickname, String password, String deviceUuid) {
         User user = new User();

@@ -2,7 +2,8 @@ package inha.primero_server.domain.inquiry.entity;
 
 import inha.primero_server.domain.inquiry.dto.request.InquiryReq;
 import inha.primero_server.domain.inquiry.entity.enums.Status;
-import inha.primero_server.global.BaseEntity;
+import inha.primero_server.domain.user.entity.User;
+import inha.primero_server.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
