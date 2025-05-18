@@ -1,19 +1,22 @@
 package inha.primero_server.domain.inquiry.service;
 
-import inha.primero_server.domain.inquiry.dto.request.InquiryReq;
-import inha.primero_server.domain.inquiry.dto.response.InquiryPagingRes;
-import inha.primero_server.domain.inquiry.dto.response.InquiryRes;
+import inha.primero_server.domain.inquiry.dto.request.InquiryRequest;
+import inha.primero_server.domain.inquiry.dto.response.InquiryPagingResponse;
+import inha.primero_server.domain.inquiry.dto.response.InquiryResponse;
 import inha.primero_server.domain.inquiry.entity.Inquiry;
+import inha.primero_server.domain.inquiry.mapper.InquiryMapper;
 import inha.primero_server.domain.inquiry.repository.InquiryRepository;
 import inha.primero_server.domain.user.entity.User;
 import inha.primero_server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -26,23 +29,24 @@ public class InquiryServiceImpl implements InquiryService{
 
     private final InquiryRepository inquiryRepository;
     private final UserRepository userRepository;
+    private final InquiryMapper inquiryMapper;
 
     /**
      * 문의글 작성
      *
-     * @param inquiryReq 사용자 문의글 작성 요청
+     * @param inquiryRequest 사용자 문의글 작성 요청
      * @return 문의글 작성 응답
      */
     @Override
-    public InquiryRes createInquiry(InquiryReq inquiryReq, Long userId) { //추후 AuthenticationPrincipal 추가
+    public InquiryResponse createInquiry(InquiryRequest inquiryRequest, Long userId) { //추후 AuthenticationPrincipal 추가
         // 1. 사용자 검증
         User user = validateUser(userId);
 
         // 2. Inquiry 생성 및 저장
-        Inquiry inquiry = inquiryReq.toEntity();
-        inquiry.setUser(user);
+        Inquiry inquiry = new Inquiry(inquiryRequest.title(), inquiryRequest.content(), user);
         inquiryRepository.save(inquiry);
-        return new InquiryRes(inquiry);
+
+        return inquiryMapper.toInquiryResponse(inquiry);
     }
 
     private User validateUser(Long userId) {
@@ -76,21 +80,21 @@ public class InquiryServiceImpl implements InquiryService{
      * @return 문의글 조회 응답
      */
     @Override
-    public InquiryRes getInquiry(Integer inquiryId) {
+    public InquiryResponse getInquiry(Integer inquiryId) {
         Inquiry inquiry = validateInquiry(inquiryId);
-        return new InquiryRes(inquiry);
+        return inquiryMapper.toInquiryResponse(inquiry);
     }
 
     /**
      * 단일 문의글 수정
      *
      * @param inquiryId 문의글 식별자
-     * @param inquiryReq 문의글 수정 요청
+     * @param inquiryRequest 문의글 수정 요청
      */
     @Override
-    public void updateInquiry(Integer inquiryId, InquiryReq inquiryReq) {
+    public void updateInquiry(Integer inquiryId, InquiryRequest inquiryRequest) {
         Inquiry inquiry = validateInquiry(inquiryId);
-        inquiry.update(inquiryReq);
+        inquiry.update(inquiryRequest.title(), inquiryRequest.content());
     }
 
     /**
@@ -100,13 +104,7 @@ public class InquiryServiceImpl implements InquiryService{
     @Override
     public void deleteInquiry(Integer inquiryId) {
         Inquiry inquiry = validateInquiry(inquiryId);
-        inquiryRepository.deleteById(inquiry.getId());
-    }
-
-    @Override
-    public void markAnswered(Integer inquiryId) {
-        Inquiry inquiry = validateInquiry(inquiryId);
-        inquiry.answered();
+        inquiryRepository.delete(inquiry);
     }
 
     private Inquiry validateInquiry(Integer inquiryId) {
@@ -122,22 +120,33 @@ public class InquiryServiceImpl implements InquiryService{
      * @return 필터링 결과
      */
     @Override
-    public InquiryPagingRes list(Pageable pageable, String keyword) {
-        // 검색 키워드가 존재하면 검색어를 포함한 결과 리턴, 그 외에는 페이징 결과만 조회
-        Page<Inquiry> inquiries;
-        if (StringUtils.hasText(keyword)){
-            inquiries = searchList(keyword, pageable);
-        } else {
-            inquiries = index(pageable);
+    public InquiryPagingResponse list(Pageable pageable, String keyword) {
+
+        // 1) 첫 조회
+        Page<Inquiry> page = getInquiryPage(pageable, keyword);
+
+        // 2) 클램프 처리
+        int req = pageable.getPageNumber();
+        int total = page.getTotalPages();
+        int lastIndex = Math.max(0, total - 1);
+        if (req > lastIndex) {
+            pageable = PageRequest.of(lastIndex, pageable.getPageSize(), pageable.getSort());
+            page = getInquiryPage(pageable, keyword);
         }
-        return InquiryPagingRes.of(inquiries);
+
+        List<InquiryResponse> inquiryResponseList = inquiryMapper.toInquiryResponseList(page.getContent());
+
+        total = Math.max(1, page.getTotalPages());
+        int current = Math.min(total, page.getNumber() + 1);
+        int prev = Math.max(1, current - 1);
+        int next = Math.min(total, current + 1);
+
+        return new InquiryPagingResponse(inquiryResponseList, prev, next, current, total);
     }
 
-    private Page<Inquiry> index(Pageable pageable) {
-        return inquiryRepository.findAll(pageable);
-    }
-
-    private Page<Inquiry> searchList(String keyword, Pageable pageable) {
-        return inquiryRepository.findInquiresByTitleContainingAndContentContaining(keyword, keyword, pageable);
+    private Page<Inquiry> getInquiryPage(Pageable pageable, String keyword) {
+        return StringUtils.hasText(keyword)
+                ? inquiryRepository.findInquiresByTitleContainingOrContentContaining(keyword, keyword, pageable)
+                : inquiryRepository.findAll(pageable);
     }
 }
