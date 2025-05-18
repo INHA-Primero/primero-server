@@ -19,5 +19,5 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Integer> {
      * @param pageable 페이징 조건 (size, sort, page)
      * @return 페이징 결과
      */
-    Page<Inquiry> findInquiresByTitleContainingAndContentContaining(String title, String content, Pageable pageable);
+    Page<Inquiry> findInquiresByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
 }

@@ -1,6 +1,6 @@
 package inha.primero_server.domain.inquiry.entity;
 
-import inha.primero_server.domain.inquiry.dto.request.AnswerReq;
+import inha.primero_server.domain.user.entity.User;
 import inha.primero_server.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,8 +10,6 @@ import lombok.*;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "answer_tb")
 public class Answer extends BaseEntity {
@@ -28,12 +26,18 @@ public class Answer extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    public void setInquiry(Inquiry inquiry) {
+    @Builder
+    public Answer(Inquiry inquiry, String content) {
+        setInquiry(inquiry);
+        this.content = content;
+    }
+
+    private void setInquiry(Inquiry inquiry) {
         this.inquiry = inquiry;
         inquiry.getAnswers().add(this);
     }
 
-    public void update(AnswerReq req) {
-        this.content = req.getContent();
+    public void updateContent(String content) {
+        this.content = content;
     }
 }

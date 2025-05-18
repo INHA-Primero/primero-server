@@ -1,6 +1,5 @@
 package inha.primero_server.domain.inquiry.entity;
 
-import inha.primero_server.domain.inquiry.dto.request.InquiryReq;
 import inha.primero_server.domain.inquiry.entity.enums.Status;
 import inha.primero_server.domain.user.entity.User;
 import inha.primero_server.global.common.entity.BaseEntity;
@@ -15,8 +14,6 @@ import java.util.List;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "inquiry_tb")
 public class Inquiry extends BaseEntity {
@@ -32,33 +29,45 @@ public class Inquiry extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Builder.Default
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status = Status.OPEN;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "inquiry", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "inquiry",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private List<Answer> answers = new ArrayList<>();
+
+    @Builder
+    public Inquiry(String title, String content, User user) {
+        this.title = title;
+        this.content = content;
+        setUser(user);
+    }
+
+    private void setUser(User user) {
+        this.user = user;
+        user.getInquiryList().add(this);
+    }
 
     public String getWriter() {
         return this.user.getName();
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-        user.getInquiryList().add(this);
     }
 
     public void answered() {
         this.status = Status.ANSWERED;
     }
 
-    public void update(InquiryReq req) {
-        this.title = req.getTitle();
-        this.content = req.getContent();
+    public void opened() {
+        this.status = Status.OPEN;
+    }
+
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
     }
 }

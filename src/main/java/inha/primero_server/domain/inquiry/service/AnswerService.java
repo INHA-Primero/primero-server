@@ -1,10 +1,10 @@
 package inha.primero_server.domain.inquiry.service;
 
-import inha.primero_server.domain.inquiry.dto.request.AnswerReq;
-import inha.primero_server.domain.inquiry.dto.response.AnswerRes;
-
-import java.util.List;
+import inha.primero_server.domain.inquiry.dto.request.AnswerRequest;
+import inha.primero_server.domain.inquiry.dto.response.AnswerResponse;
 
 public interface AnswerService {
-    AnswerRes create(Integer inquiryId, AnswerReq req);
+    AnswerResponse createAnswer(Integer inquiryId, AnswerRequest answerRequest);
+    AnswerResponse updateAnswer(Integer inquiryId, AnswerRequest answerRequest);
+    AnswerResponse deleteAnswer(Integer answerId, Integer inquiryId);
 }
