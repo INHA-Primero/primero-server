@@ -1,4 +1,19 @@
 package inha.primero_server.domain.inquiry.service;
 
-public class InquiryService {
+import inha.primero_server.domain.inquiry.dto.request.InquiryRequest;
+import inha.primero_server.domain.inquiry.dto.response.InquiryPagingResponse;
+import inha.primero_server.domain.inquiry.dto.response.InquiryResponse;
+import org.springframework.data.domain.Pageable;
+
+public interface InquiryService {
+    //InquiryRes createInquiry(InquiryReq inquiryReq, User user);
+    InquiryResponse createInquiry(InquiryRequest inquiryRequest, Long userId);
+
+    InquiryResponse getInquiry(Integer inquiryId);
+
+    void updateInquiry(Integer inquiryId, InquiryRequest inquiryRequest);
+
+    void deleteInquiry(Integer inquiryId);
+
+    InquiryPagingResponse list(Pageable pageable, String keyword);
 }
