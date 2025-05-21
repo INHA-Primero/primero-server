@@ -2,16 +2,18 @@ package inha.primero_server.domain.recycle.entity;
 
 import inha.primero_server.domain.bin.entity.Bin;
 import inha.primero_server.domain.user.entity.User;
-import inha.primero_server.global.BaseEntity;
+import inha.primero_server.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "recycle_logs")
-public class RecycleLog extends BaseEntity {
+@Table(name = "recycles")
+public class Recycle extends BaseEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +43,7 @@ public class RecycleLog extends BaseEntity {
     @Column(name = "taken_at", nullable = false)
     private LocalDateTime takenAt;
 
-    public RecycleLog(User user, Bin bin, String recordImgPath, Material material, Integer rewardPoint, Boolean result) {
+    public Recycle(User user, Bin bin, String recordImgPath, Material material, Integer rewardPoint, Boolean result) {
         this.user = user;
         this.bin = bin;
         this.recordImgPath = recordImgPath;
