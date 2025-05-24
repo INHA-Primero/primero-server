@@ -1,84 +1,97 @@
 package inha.primero_server.domain.user.service;
 
-import inha.primero_server.domain.user.dto.request.UserSignUpRequest;
-import inha.primero_server.domain.user.dto.request.UserModifyRequest;
+import inha.primero_server.domain.user.dto.request.UserUpdateRequest;
 import inha.primero_server.domain.user.dto.response.UserResponse;
 import inha.primero_server.domain.user.entity.User;
-import inha.primero_server.global.common.entity.Status;
 import inha.primero_server.domain.user.repository.UserRepository;
 import inha.primero_server.global.common.error.CustomException;
 import inha.primero_server.global.common.error.ErrorCode;
+import inha.primero_server.global.security.service.TokenService;
+import inha.primero_server.global.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
-
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
+    private final FileUtils fileUtils;
 
+    /**
+     * UUID로 사용자 정보 조회
+     */
+    public UserResponse getUserInfo(String bearerToken) {
+        User user = getUserFromToken(bearerToken);
+        return UserResponse.from(user);
+    }
+
+    /**
+     * 사용자 정보 수정
+     */
     @Transactional
-    public Long signUp(UserSignUpRequest request, String deviceUuid) {
-        validateDuplicate(request.email(), request.studentNumber(), request.nickname(), deviceUuid);
-
-        User user = User.create(
-                request.email(),
-                request.name(), // name 추가
-                request.studentNumber(),
-                request.nickname(),
-                request.password(),
-                deviceUuid
-        );
-
-        return userRepository.save(user).getUserId();
+    public UserResponse updateUser(String bearerToken, UserUpdateRequest request) {
+        return updateUser(bearerToken, request, null);
     }
 
+    /**
+     * 사용자 정보 수정
+     */
     @Transactional
-    public UserResponse updateUser(Long userId, UserModifyRequest request) {
-        User user = getActiveUser(userId);
+    public UserResponse updateUser(String bearerToken, UserUpdateRequest request, MultipartFile profileImage) {
+        User user = getUserFromToken(bearerToken);
 
-        String password = (request.password() == null || request.password().isBlank())
-                ? user.getPassword()
-                : request.password();
-
-        String profileImgPath = (request.profileImgPath() == null || request.profileImgPath().isBlank())
-                ? user.getProfileImgPath()
-                : request.profileImgPath();
-
-        user.updateInfo(request.nickname(), password, profileImgPath);
-        return UserResponse.of(user);
-    }
-
-    @Transactional
-    public void deleteUser(Long userId) {
-        User user = getActiveUser(userId);
-        user.delete();
-    }
-
-    public UserResponse getUser(Long userId) {
-        User user = getActiveUser(userId);
-        return UserResponse.of(user);
-    }
-
-    private void validateDuplicate(String email, int studentNumber, String nickname, String deviceUuid) {
-        if (userRepository.existsByEmail(email)) {
-            throw new CustomException(ErrorCode.DUPLICATE_OBJECT, "이미 등록된 이메일입니다.");
+        if (request.getPassword() != null) {
+            user.updatePassword(passwordEncoder.encode(request.getPassword()));
         }
-        if (userRepository.existsByStudentNumber(studentNumber)) {
-            throw new CustomException(ErrorCode.DUPLICATE_OBJECT, "이미 등록된 학번입니다.");
+        if (request.getNickname() != null) {
+            validateNickname(request.getNickname(), user.getNickname());
+            user.updateNickname(request.getNickname());
         }
-        if (userRepository.existsByNickname(nickname)) {
+        if (profileImage != null && !profileImage.isEmpty()) {
+            if (user.getProfileImageUrl() != null) {
+                fileUtils.deleteImage(user.getProfileImageUrl());
+            }
+            String profileImageUrl = fileUtils.uploadImage(profileImage);
+            user.updateProfileImage(profileImageUrl);
+        }
+
+        return UserResponse.from(user);
+    }
+
+    /**
+     * 회원 탈퇴
+     */
+    @Transactional
+    public void deleteUser(String bearerToken) {
+        User user = getUserFromToken(bearerToken);
+        if (user.getProfileImageUrl() != null) {
+            fileUtils.deleteImage(user.getProfileImageUrl());
+        }
+        userRepository.delete(user);
+    }
+
+    /**
+     * UUID로 사용자 조회
+     */
+    private User findUserByUuidOrThrow(String uuid) {
+        return userRepository.findByUuid(uuid)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "존재하지 않는 사용자입니다."));
+    }
+
+    private User getUserFromToken(String bearerToken) {
+        String userUuid = tokenService.validateAndGetUserUuid(bearerToken);
+        return findUserByUuidOrThrow(userUuid);
+    }
+
+    private void validateNickname(String nickname, String currentNickname) {
+        if (!nickname.equals(currentNickname) && userRepository.existsByNickname(nickname)) {
             throw new CustomException(ErrorCode.DUPLICATE_OBJECT, "이미 사용 중인 닉네임입니다.");
         }
-        if (userRepository.existsByDeviceUuid(deviceUuid)) {
-            throw new CustomException(ErrorCode.DUPLICATE_OBJECT, "이미 등록된 기기입니다.");
-        }
-    }
-
-    private User getActiveUser(Long userId) {
-        return userRepository.findByUserIdAndStatus(userId, Status.ACTIVE)
-                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "사용자를 찾을 수 없습니다."));
     }
 }

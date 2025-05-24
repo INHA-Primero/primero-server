@@ -1,73 +1,62 @@
 package inha.primero_server.domain.inquiry.entity;
 
-import inha.primero_server.domain.inquiry.entity.enums.Status;
 import inha.primero_server.domain.user.entity.User;
-import inha.primero_server.global.common.entity.BaseEntity;
+import inha.primero_server.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 /**
  * Inquiry 엔티티는 애플리케이션의 문의글 정보를 나타냄.
  */
+@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-@Table(name = "inquiry_tb")
-public class Inquiry extends BaseEntity {
-
+public class Inquiry extends BaseTimeEntity {
     @Id
-    @Column(name = "inquiry_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Status status = Status.OPEN;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "inquiry",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private List<Answer> answers = new ArrayList<>();
+    @Column(nullable = false)
+    private boolean isAnswered;
+
+    @Column(columnDefinition = "TEXT")
+    private String answer;
+
+    private LocalDateTime answeredAt;
 
     @Builder
     public Inquiry(String title, String content, User user) {
         this.title = title;
         this.content = content;
-        setUser(user);
-    }
-
-    private void setUser(User user) {
         this.user = user;
-        user.getInquiryList().add(this);
+        this.isAnswered = false;
+        this.addToUser();
     }
 
-    public String getWriter() {
-        return this.user.getName();
+    public void answer(String answer) {
+        this.answer = answer;
+        this.isAnswered = true;
+        this.answeredAt = LocalDateTime.now();
     }
 
-    public void answered() {
-        this.status = Status.ANSWERED;
-    }
-
-    public void opened() {
-        this.status = Status.OPEN;
-    }
-
-    public void update(String title, String content) {
-        this.title = title;
-        this.content = content;
+    private void addToUser() {
+        if (this.user != null) {
+            user.getInquiryList().add(this);
+        }
     }
 }

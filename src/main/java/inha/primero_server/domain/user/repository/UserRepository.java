@@ -1,17 +1,17 @@
 package inha.primero_server.domain.user.repository;
 
 import inha.primero_server.domain.user.entity.User;
-import inha.primero_server.global.common.entity.Role;
-import inha.primero_server.global.common.entity.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+    Optional<User> findByUuid(String uuid);
+    Optional<User> findByBarcode(String barcode);
+    Optional<User> findByStudentId(String studentId);
     boolean existsByEmail(String email);
-    boolean existsByStudentNumber(int studentNumber);
-    boolean existsByNickname(String nickName);
+    boolean existsByNickname(String nickname);
+    boolean existsByStudentId(String studentId);
     boolean existsByDeviceUuid(String deviceUuid);
-    Optional<User> findByUserIdAndStatus(Long userId, Status status);}
+}
