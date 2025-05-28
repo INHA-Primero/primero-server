@@ -3,6 +3,8 @@ package inha.primero_server.domain.user.service;
 import inha.primero_server.domain.user.dto.request.UserSignUpRequest;
 import inha.primero_server.domain.user.dto.request.UserModifyRequest;
 import inha.primero_server.domain.user.dto.response.UserResponse;
+import inha.primero_server.domain.user.dto.response.UserInfoResponse;
+import inha.primero_server.domain.user.dto.response.UserRankingResponse;
 import inha.primero_server.domain.user.entity.User;
 import inha.primero_server.global.common.entity.Status;
 import inha.primero_server.domain.user.repository.UserRepository;
@@ -60,6 +62,34 @@ public class UserService {
     public UserResponse getUser(Long userId) {
         User user = getActiveUser(userId);
         return UserResponse.of(user);
+    }
+
+    public UserRankingResponse getUserRanking(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Long ranking = userRepository.countByTotalPointGreaterThan(user.getTotalPoint()) + 1;
+
+        return UserRankingResponse.builder()
+                .nickname(user.getNickname())
+                .ranking(ranking)
+                .totalPoint(user.getTotalPoint())
+                .build();
+    }
+
+    public UserInfoResponse getUserInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return UserInfoResponse.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .studentNumber(user.getStudentNumber())
+                .nickname(user.getNickname())
+                .profileImgPath(user.getProfileImgPath())
+                .totalPoint(user.getTotalPoint())
+                .build();
     }
 
     private void validateDuplicate(String email, int studentNumber, String nickname, String deviceUuid) {

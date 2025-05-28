@@ -3,6 +3,8 @@ package inha.primero_server.domain.user.controller;
 import inha.primero_server.domain.user.dto.request.UserSignUpRequest;
 import inha.primero_server.domain.user.dto.request.UserModifyRequest;
 import inha.primero_server.domain.user.dto.response.UserResponse;
+import inha.primero_server.domain.user.dto.response.UserInfoResponse;
+import inha.primero_server.domain.user.dto.response.UserRankingResponse;
 import inha.primero_server.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +44,19 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/ranking")
+    public ResponseEntity<UserRankingResponse> getUserRanking(
+            @RequestParam(required = false) Long userId) {
+        // TODO: Get userId from token if available
+        return ResponseEntity.ok(userService.getUserRanking(userId));
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<UserInfoResponse> getUserInfo(
+            @RequestParam(required = false) Long userId) {
+        // TODO: Get userId from token if available
+        return ResponseEntity.ok(userService.getUserInfo(userId));
     }
 }
