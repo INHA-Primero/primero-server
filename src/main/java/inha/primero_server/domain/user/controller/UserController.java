@@ -17,12 +17,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Long> signUp(
-            @RequestBody @Valid UserSignUpRequest request,
-            @RequestHeader("X-DEVICE-UUID") String deviceUuid // FE에서 header로 넘겨줘야함
-    ) {
-        Long userId = userService.signUp(request, deviceUuid);
-        return ResponseEntity.ok(userId);
+    public ResponseEntity<Void> signup(@Valid @RequestBody UserSignUpRequest req){
+        userService.signup(req);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{userId}")

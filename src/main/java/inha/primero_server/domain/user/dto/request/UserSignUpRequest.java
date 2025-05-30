@@ -5,32 +5,33 @@ import inha.primero_server.global.common.error.ErrorCode;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
-public record UserSignUpRequest(
+@Getter
+@Setter
+public class UserSignUpRequest {
+    @NotBlank(message = "이름은 필수 항목입니다.")
+    String name;
 
-        @Email
-        @NotBlank(message = "이메일은 필수 항목입니다.")
-        String email,
+    @NotNull(message = "학번은 필수 항목입니다.")
+    Integer studentNumber;
+    @NotBlank(message = "나무이름은 필수 항목입니다.")
+    String treeName;
 
-        @NotBlank(message = "이름은 필수 항목입니다.")
-        String name,
+    @NotBlank(message = "이메일은 필수 항목입니다.")
+    @Email
+    String email;
 
-        @NotNull(message = "학번은 필수 항목입니다.")
-        Integer studentNumber,
+    @NotBlank(message = "비밀번호는 필수 항목입니다.")
+    @Size(min = 8)
+    String password;
 
-        @NotBlank(message = "닉네임은 필수 항목입니다.")
-        String nickname,
+    @NotBlank(message = "비밀번호 확인은 필수 항목입니다.")
+    @Size(min = 8)
+    String confirmPassword;
 
-        @NotBlank(message = "비밀번호는 필수 항목입니다.")
-        String password,
-
-        @NotBlank(message = "비밀번호 확인은 필수 항목입니다.")
-        String confirmPassword
-
-) {
-    public UserSignUpRequest {
-        if (!password.equals(confirmPassword)) {
-            throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH, "비밀번호가 일치하지 않습니다.");
-        }
-    }
+    @NotBlank
+    private String deviceUuid;
 }
