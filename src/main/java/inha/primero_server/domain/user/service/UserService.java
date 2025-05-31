@@ -25,6 +25,7 @@ public class UserService {
     private final StringRedisTemplate redisTemplate;
     // private final BarcodeService barcodeService;
 
+    @Transactional
     public void signup(UserSignUpRequest request) {
         if (!request.getEmail().endsWith("@inha.edu")) {
             throw new CustomException(ErrorCode.INVALID_PARAMETER, "인하대학교 이메일만 가입할 수 있습니다.");
@@ -65,7 +66,6 @@ public class UserService {
         // barcodeService.generateFor(user);
     }
 
-    @Transactional(readOnly = true)
     public UserResponse getUser(Long userId) {
         User user = userRepository.findByUserIdAndStatus(userId, Status.ACTIVE)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "존재하지 않는 사용자입니다."));

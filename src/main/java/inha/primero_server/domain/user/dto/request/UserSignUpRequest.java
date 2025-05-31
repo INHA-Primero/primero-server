@@ -1,7 +1,5 @@
 package inha.primero_server.domain.user.dto.request;
 
-import inha.primero_server.global.common.error.CustomException;
-import inha.primero_server.global.common.error.ErrorCode;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -33,5 +31,7 @@ public class UserSignUpRequest {
     String confirmPassword;
 
     @NotBlank
-    private String deviceUuid;
+    String deviceUuid;
+
+    Integer totalPoint = 0;
 }
