@@ -1,4 +1,6 @@
 package inha.primero_server.domain.login.dto.response;
 
-public class LoginRes {
-}
+public record LoginRes(
+        Long userId,
+        String treeName
+) {}
