@@ -7,7 +7,7 @@ public record UserResponse(
         String email,
         String name,
         Integer studentNumber,
-        String nickname,
+        String treeName,
         String profileImgPath,
         Integer totalPoint
 ) {
@@ -17,7 +17,7 @@ public record UserResponse(
                 user.getEmail(),
                 user.getName(),
                 user.getStudentNumber(),
-                user.getNickname(),
+                user.getTreeName(),
                 user.getProfileImgPath(),
                 user.getTotalPoint()
         );
