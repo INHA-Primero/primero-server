@@ -2,6 +2,7 @@ package inha.primero_server.domain.recycle.service;
 
 import inha.primero_server.domain.bin.entity.Bin;
 import inha.primero_server.domain.bin.repository.BinRepository;
+import inha.primero_server.domain.character.service.CharacterService;
 import inha.primero_server.domain.recycle.dto.RecycleDetailResponseDto;
 import inha.primero_server.domain.recycle.dto.RecycleListResponseDto;
 import inha.primero_server.domain.recycle.dto.request.RecycleLogRequest;
@@ -27,6 +28,7 @@ public class RecycleService {
     private final RecycleRepository recycleRepository;
     private final UserRepository userRepository;
     private final BinRepository binRepository;
+    private final CharacterService characterService;
 
     @Transactional
     public RecycleLogResponse createFailureLog(RecycleLogRequest request) {
@@ -71,8 +73,13 @@ public class RecycleService {
         );
 
         recycleRepository.save(recycle);
-        //user.setTotalPoint(user.getTotalPoint() + 100);
+        
+        // Update user points
+        user.addTotalPoint(100);
         userRepository.save(user);
+        
+        // Update character watering chance
+        characterService.addWateringChance(user.getUserId(), 1);
 
         return RecycleLogResponse.builder()
                 .success(true)
@@ -106,12 +113,5 @@ public class RecycleService {
         Recycle recycle = recycleRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recycle not found with id: " + id));
         return new RecycleDetailResponseDto(recycle);
-    }
-
-    @Transactional
-    public void createSuccessLog(User user, Recycle recycle) {
-        recycleRepository.save(recycle);
-        //user.setTotalPoint(user.getTotalPoint() + 100);
-        userRepository.save(user);
     }
 }
