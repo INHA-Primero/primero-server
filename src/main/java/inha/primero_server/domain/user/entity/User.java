@@ -85,4 +85,12 @@ public class User extends BaseEntity {
     public void encodePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
+
+    public void setTotalPoint(Integer totalPoint) {
+        this.totalPoint = totalPoint;
+    }
+
+    public void addTotalPoint(Integer points) {
+        this.totalPoint += points;
+    }
 }

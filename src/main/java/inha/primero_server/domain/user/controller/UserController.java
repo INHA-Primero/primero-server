@@ -9,6 +9,8 @@ import inha.primero_server.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,16 +46,14 @@ public class UserController {
     }
 
     @GetMapping("/ranking")
-    public ResponseEntity<UserRankingResponse> getUserRanking(
-            @RequestParam(required = false) Long userId) {
-        // TODO: Get userId from token if available
+    public ResponseEntity<UserRankingResponse> getUserRanking(@AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = Long.parseLong(userDetails.getUsername());
         return ResponseEntity.ok(userService.getUserRanking(userId));
     }
 
     @GetMapping("/info")
-    public ResponseEntity<UserInfoResponse> getUserInfo(
-            @RequestParam(required = false) Long userId) {
-        // TODO: Get userId from token if available
+    public ResponseEntity<UserInfoResponse> getUserInfo(@AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = Long.parseLong(userDetails.getUsername());
         return ResponseEntity.ok(userService.getUserInfo(userId));
     }
 }
