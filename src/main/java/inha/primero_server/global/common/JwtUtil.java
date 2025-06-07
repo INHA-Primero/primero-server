@@ -25,7 +25,8 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
-        this.secretKey = Keys.hmacShaKeyFor(secretKeyString.getBytes(StandardCharsets.UTF_8));
+        byte[] decodedKey = java.util.Base64.getDecoder().decode(secretKeyString);
+        this.secretKey = Keys.hmacShaKeyFor(decodedKey);
     }
 
     /**
@@ -74,9 +75,11 @@ public class JwtUtil {
             throw new CustomException(ErrorCode.INVALID_JWT, "토큰이 전달되지 않았습니다.");
         }
 
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
+        if (!token.startsWith("Bearer ")) {
+            throw new CustomException(ErrorCode.INVALID_JWT, "Authorization 헤더가 Bearer 형식이 아닙니다.");
         }
+
+        token = token.substring(7);
 
         try {
             return Jwts.parserBuilder()
@@ -90,6 +93,7 @@ public class JwtUtil {
             throw new CustomException(ErrorCode.INVALID_JWT, "유효하지 않은 JWT입니다.");
         }
     }
+
 
 
 
