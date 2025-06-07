@@ -4,13 +4,13 @@ import inha.primero_server.domain.login.dto.request.LoginReq;
 import inha.primero_server.domain.login.dto.response.LoginRes;
 import inha.primero_server.domain.login.repository.LoginRepository;
 import inha.primero_server.domain.user.entity.User;
+import inha.primero_server.global.common.JwtUtil;
 import inha.primero_server.global.common.error.CustomException;
 import inha.primero_server.global.common.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +19,7 @@ public class LoginService {
 
     private final LoginRepository loginRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public LoginRes login(LoginReq request) {
         User user = loginRepository.findByEmail(request.email())
@@ -28,6 +29,7 @@ public class LoginService {
             throw new CustomException(ErrorCode.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
         }
 
-        return new LoginRes(user.getUserId(), user.getTreeName());
+        String token = jwtUtil.createAccessToken(user.getUserId(), user.getEmail(), user.getRole().name());
+        return new LoginRes(user.getUserId(), user.getTreeName(), token);
     }
 }
