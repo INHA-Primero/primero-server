@@ -28,4 +28,4 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
 jwt:
-  secret: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY=
+  secret: ${JWT_SECRET}
