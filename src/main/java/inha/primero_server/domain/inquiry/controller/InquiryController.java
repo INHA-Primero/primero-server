@@ -35,18 +35,12 @@ public class InquiryController {
      * @param inquiryRequest 문의글 작성 요청
      * @return 문의글 작성 결과를 포함하는 응답 ResponseEntity<InquiryRes>
      */
-    @PostMapping()
+    @PostMapping("/{userId}")
     @Operation(summary = "문의 생성 API", description = "현재 로그인한 사용자가 문의를 생성합니다.")
-    public ResponseEntity<InquiryResponse> createInquiry(@RequestHeader(name = "X-USER-ID") Long userId,
-                                                         @Validated @RequestBody InquiryRequest inquiryRequest) {//@AuthenticationPrincipal UserPrincipal principal 추후 변경
+    public ResponseEntity<InquiryResponse> createInquiry(@PathVariable Long userId,
+                                                         @Validated @RequestBody InquiryRequest inquiryRequest) {
         return ResponseEntity.ok(inquiryService.createInquiry(inquiryRequest, userId));
     }
-    /*
-    @PostMapping
-    public ResponseEntity<InquiryRes> createInquiry(@RequestBody InquiryReq inquiryReq, User user) {//@AuthenticationPrincipal UserPrincipal principal 추후 변경
-        return ResponseEntity.ok(inquiryService.createInquiry(inquiryReq, user));
-    }
-    */
 
     /**
      * 단일 문의글 조회 API
