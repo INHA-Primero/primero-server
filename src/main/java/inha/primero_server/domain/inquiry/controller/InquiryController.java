@@ -7,9 +7,11 @@ import inha.primero_server.domain.inquiry.dto.response.InquiryPagingResponse;
 import inha.primero_server.domain.inquiry.dto.response.InquiryResponse;
 import inha.primero_server.domain.inquiry.service.AnswerService;
 import inha.primero_server.domain.inquiry.service.InquiryService;
+import inha.primero_server.global.common.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -28,6 +30,7 @@ public class InquiryController {
 
     private final InquiryService inquiryService;
     private final AnswerService answerService;
+    private final JwtUtil jwtUtil;
 
     /**
      * 유저 문의글 작성 API
@@ -37,16 +40,13 @@ public class InquiryController {
      */
     @PostMapping()
     @Operation(summary = "문의 생성 API", description = "현재 로그인한 사용자가 문의를 생성합니다.")
-    public ResponseEntity<InquiryResponse> createInquiry(@RequestHeader(name = "X-USER-ID") Long userId,
-                                                         @Validated @RequestBody InquiryRequest inquiryRequest) {//@AuthenticationPrincipal UserPrincipal principal 추후 변경
+    public ResponseEntity<InquiryResponse> createInquiry(@RequestHeader(value = "Authorization", required = false) String token,
+                                                         @Validated @RequestBody InquiryRequest inquiryRequest) {
+        jwtUtil.validateToken(token);
+        Long userId = jwtUtil.getUserId(token);
+
         return ResponseEntity.ok(inquiryService.createInquiry(inquiryRequest, userId));
     }
-    /*
-    @PostMapping
-    public ResponseEntity<InquiryRes> createInquiry(@RequestBody InquiryReq inquiryReq, User user) {//@AuthenticationPrincipal UserPrincipal principal 추후 변경
-        return ResponseEntity.ok(inquiryService.createInquiry(inquiryReq, user));
-    }
-    */
 
     /**
      * 단일 문의글 조회 API
@@ -80,6 +80,19 @@ public class InquiryController {
         return ResponseEntity.ok(pagingRes);
     }
 
+    @GetMapping("/me")
+    @Operation(summary = "내 문의 리스트 조회 API", description = "내 문의 리스트 조회합니다.")
+    public ResponseEntity<Page<InquiryResponse>> getMyInquires(
+            @RequestHeader(value = "Authorization", required = false) String token,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        jwtUtil.validateToken(token);
+        Long userId = jwtUtil.getUserId(token);
+
+        Page<InquiryResponse> myInquires = inquiryService.getMyInquires(userId, pageable);
+
+        return ResponseEntity.ok(myInquires);
+    }
+
     /**
      * 단일 문의글 수정 API
      * @param inquiryId 문의글 식별자
@@ -89,8 +102,11 @@ public class InquiryController {
     @PutMapping("/{inquiryId}")
     @Operation(summary = "문의 수정 API", description = "단일 문의를 수정합니다.")
     public ResponseEntity<Integer> updateInquiry(@PathVariable Integer inquiryId,
+                                                 @RequestHeader(value = "Authorization", required = false) String token,
                                                  @Validated @RequestBody InquiryRequest inquiryRequest) {
-        inquiryService.updateInquiry(inquiryId, inquiryRequest);
+        jwtUtil.validateToken(token);
+        Long userId = jwtUtil.getUserId(token);
+        inquiryService.updateInquiry(inquiryId, inquiryRequest, userId);
         return ResponseEntity.ok(inquiryId);
     }
 
