@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -54,25 +55,6 @@ public class InquiryServiceImpl implements InquiryService{
                 .orElseThrow(() -> new NoSuchElementException("User Not Found : " + userId));
     }
 
-    /*@Override
-    public InquiryRes createInquiry(InquiryReq inquiryReq, User user) { //추후 AuthenticationPrincipal 추가
-        // 1. 사용자 검증
-        validateUser(user);
-
-        // 2. Inquiry 생성 및 저장
-        Inquiry inquiry = inquiryReq.toEntity();
-        inquiry.setUser(user);
-        inquiryRepository.save(inquiry);
-        return new InquiryRes(inquiry);
-    }
-
-    private void validateUser(User user) {
-        userRepository.findById(user.getId())
-                .orElseThrow(() -> new NoSuchElementException("User Not Found : " + user));
-    }
-    */
-
-
     /**
      * 단일 문의글 조회
      *
@@ -92,8 +74,13 @@ public class InquiryServiceImpl implements InquiryService{
      * @param inquiryRequest 문의글 수정 요청
      */
     @Override
-    public void updateInquiry(Integer inquiryId, InquiryRequest inquiryRequest) {
+    public void updateInquiry(Integer inquiryId, InquiryRequest inquiryRequest, Long userId) {
         Inquiry inquiry = validateInquiry(inquiryId);
+
+        if(!inquiry.getUser().getUserId().equals(userId)){
+            throw new AccessDeniedException("수정 권한이 없습니다.");
+        }
+
         inquiry.update(inquiryRequest.title(), inquiryRequest.content());
     }
 
@@ -148,5 +135,12 @@ public class InquiryServiceImpl implements InquiryService{
         return StringUtils.hasText(keyword)
                 ? inquiryRepository.findInquiresByTitleContainingOrContentContaining(keyword, keyword, pageable)
                 : inquiryRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<InquiryResponse> getMyInquires(Long userId, Pageable pageable) {
+        User user = validateUser(userId);
+        return inquiryRepository.findAllByUser(user, pageable)
+                .map(inquiryMapper::toInquiryResponse);
     }
 }

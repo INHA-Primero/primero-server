@@ -1,10 +1,13 @@
 package inha.primero_server.domain.inquiry.repository;
 
 import inha.primero_server.domain.inquiry.entity.Inquiry;
+import inha.primero_server.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * InquiryRepository : Inquiry 엔티티에 대한 데이터 액세스 기능을 제공.
@@ -20,4 +23,5 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Integer> {
      * @return 페이징 결과
      */
     Page<Inquiry> findInquiresByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
+    Page<Inquiry> findAllByUser(User user, Pageable pageable);
 }
