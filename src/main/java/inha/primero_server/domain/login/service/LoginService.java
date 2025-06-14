@@ -6,13 +6,13 @@ import inha.primero_server.domain.login.dto.request.LoginReq;
 import inha.primero_server.domain.login.dto.response.LoginRes;
 import inha.primero_server.domain.login.repository.LoginRepository;
 import inha.primero_server.domain.user.entity.User;
+import inha.primero_server.global.common.JwtUtil;
 import inha.primero_server.global.common.error.CustomException;
 import inha.primero_server.global.common.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +22,7 @@ public class LoginService {
     private final LoginRepository loginRepository;
     private final PasswordEncoder passwordEncoder;
     private final CharacterRepository characterRepository;
+    private final JwtUtil jwtUtil;
 
     public LoginRes login(LoginReq request) {
         User user = loginRepository.findByEmail(request.email())
@@ -34,12 +35,15 @@ public class LoginService {
         Character character = characterRepository.findByUserId(user.getUserId())
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "캐릭터 정보를 찾을 수 없습니다."));
 
+        String token = jwtUtil.createAccessToken(user.getUserId(), user.getEmail(), user.getRole().name());
+
         return LoginRes.of(
                 user.getUserId(),
                 user.getTreeName(),
                 character.getExp(),
                 character.getWateringChance(),
-                character.getNickname()
+                character.getNickname(),
+                token
         );
     }
 }

@@ -17,7 +17,9 @@ public enum ErrorCode {
     INVALID_PARAMETER(HttpStatus.BAD_REQUEST, 400),
 
     PASSWORD_NOT_MATCH(HttpStatus.UNAUTHORIZED, 401),
-    DUPLICATE_OBJECT(HttpStatus.CONFLICT, 409);
+    DUPLICATE_OBJECT(HttpStatus.CONFLICT, 409),
+    INVALID_JWT(HttpStatus.UNAUTHORIZED, 401),
+    EXPIRED_JWT(HttpStatus.UNAUTHORIZED, 401);
 
     private final HttpStatus httpStatus;
     private final int code;

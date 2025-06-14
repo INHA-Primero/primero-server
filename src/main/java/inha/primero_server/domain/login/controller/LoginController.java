@@ -20,7 +20,10 @@ public class LoginController {
 
     @PostMapping
     public ResponseEntity<LoginRes> login(@RequestBody @Valid LoginReq request) {
-        LoginRes response = loginService.login(request);
-        return ResponseEntity.ok(response);
+        LoginRes loginRes = loginService.login(request);
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + loginRes.token())
+                .body(loginRes);
     }
+
 }
