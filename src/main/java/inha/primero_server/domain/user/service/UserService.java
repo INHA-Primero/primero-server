@@ -10,6 +10,8 @@ import inha.primero_server.domain.user.repository.UserRepository;
 import inha.primero_server.global.common.error.CustomException;
 import inha.primero_server.global.common.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -91,5 +93,30 @@ public class UserService {
         User user = userRepository.findByUserIdAndStatus(userId, Status.ACTIVE)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "존재하지 않는 사용자입니다."));
         user.delete();
+    }
+
+
+    @Bean
+    public CommandLineRunner createTestUser() {
+        return args -> {
+            String email = "test@inha.edu";
+
+            if (userRepository.findByEmail(email).isEmpty()) {
+                User user = User.create(
+                        email,
+                        "테스트계정",
+                        20250616,
+                        "테스트나무",
+                        passwordEncoder.encode("test1234"),
+                        "device-uuid-1234"
+                );
+
+                userRepository.save(user);
+                barcodeService.generateFor(user);
+                System.out.println("테스트 계정 생성 완료: " + email);
+            } else {
+                System.out.println("테스트 계정 이미 존재: " + email);
+            }
+        };
     }
 }
