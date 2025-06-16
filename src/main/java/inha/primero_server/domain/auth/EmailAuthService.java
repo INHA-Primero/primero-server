@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class EmailAuthService {
     private final StringRedisTemplate redisTemplate;
+    private final EmailSender emailSender;
+
 
     public void sendCodeToEmail(String email){
         if(!email.endsWith("@inha.edu")){
@@ -23,7 +25,10 @@ public class EmailAuthService {
         redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES);
 
         System.out.println("[테스트용] 인증코드 : " + code);
-        // 실제 이메일 발송 로직 연결 해야 함
+
+        String subject = "[INHA 인증] 이메일 인증 코드";
+        String content = "<h3>인증 코드: <b>" + code + "</b></h3><p>5분 내에 입력해주세요.</p>";
+        emailSender.send(email, subject, content);
     }
 
     public void verifyCode(String email, String code){
