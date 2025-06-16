@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "recycles")
+@Table(name = "recycle_tb")
 public class Recycle extends BaseEntity {
     
     @Id
