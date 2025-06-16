@@ -21,6 +21,7 @@ public class Tree extends BaseEntity {
     private String photoPath;
 
     @Column
+    @Setter
     private String pinColor = "#4CAF50";
 
     @Column
@@ -38,5 +39,10 @@ public class Tree extends BaseEntity {
     public Tree(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public void updateTree(double lat, double lon) {
+        this.latitude = lat;
+        this.longitude = lon;
     }
 }
