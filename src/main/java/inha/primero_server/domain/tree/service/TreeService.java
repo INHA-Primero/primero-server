@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface TreeService {
     List<TreeResponse> getTreeList(Long userId);
-    void createTree(TreeCreateRequest treeCreateRequest, MultipartFile photo, String email);
+    void createTree(TreeCreateRequest treeCreateRequest, MultipartFile photo);
     void updateTree(TreeUpdateRequest treeUpdateRequest, MultipartFile photo, Long treeId);
 }

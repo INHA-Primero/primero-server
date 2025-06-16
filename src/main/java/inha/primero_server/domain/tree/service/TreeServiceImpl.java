@@ -40,8 +40,8 @@ public class TreeServiceImpl implements TreeService{
     }
 
     @Override
-    public void createTree(TreeCreateRequest treeCreateRequest, MultipartFile photo, String email){
-        User findUser = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+    public void createTree(TreeCreateRequest treeCreateRequest, MultipartFile photo){
+        User findUser = userRepository.findByEmail(treeCreateRequest.email()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
         // 1. Tree 엔티티 생성
         Tree tree = treeMapper.treeCreateRequestToTree(treeCreateRequest);

@@ -4,10 +4,9 @@ import inha.primero_server.domain.tree.dto.request.TreeCreateRequest;
 import inha.primero_server.domain.tree.dto.request.TreeUpdateRequest;
 import inha.primero_server.domain.tree.dto.response.TreeResponse;
 import inha.primero_server.domain.tree.service.TreeService;
-import inha.primero_server.global.common.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.websocket.server.PathParam;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,31 +23,31 @@ import java.util.List;
 public class TreeController {
 
     private final TreeService treeService;
-    private final JwtUtil jwtUtil;
 
     @GetMapping("/{userId}")
     @Operation(summary = "나무 조회 API", description = "나무 목록을 조회합니다.")
     public ResponseEntity<List<TreeResponse>> getTreeList(@PathVariable Long userId) {
-        treeService.getTreeList(userId);
+        List<TreeResponse> treeList = treeService.getTreeList(userId);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(treeList);
     }
 
-    @PostMapping(value = "")
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "나무 등록 API", description = "나무를 등록합니다.")
-    public ResponseEntity<Void> crateTree(@RequestParam(value = "photo", required = false) MultipartFile photo,
-            TreeCreateRequest treeCreateRequest, String email) {
-        treeService.createTree(treeCreateRequest, photo, email);
+    public ResponseEntity<Void> createTree(@RequestPart(value = "photo", required = false) MultipartFile photo,
+            @Valid @RequestPart(value = "treeCreateRequest") TreeCreateRequest treeCreateRequest) {
+        treeService.createTree(treeCreateRequest, photo);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping("/{treeId}")
+    @PutMapping(value = "/{treeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "나무 수정 API", description = "나무를 수정합니다.")
-    public ResponseEntity<Void> updateTree(@RequestParam(value = "photo", required = false) MultipartFile photo,
-                                           TreeUpdateRequest treeUpdateRequest, @PathVariable Long treeId) {
+    public ResponseEntity<Void> updateTree(@RequestPart(required = false) MultipartFile photo,
+                                           @Valid @RequestPart(value = "treeUpdateRequest") TreeUpdateRequest treeUpdateRequest,
+                                           @PathVariable Long treeId) {
         treeService.updateTree(treeUpdateRequest, photo, treeId);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 }

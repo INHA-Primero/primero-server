@@ -11,8 +11,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "bin_tb")
 public class Bin {
     @Id
+    @Column(name = "bin_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
