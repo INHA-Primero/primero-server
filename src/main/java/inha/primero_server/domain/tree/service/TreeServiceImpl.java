@@ -2,6 +2,7 @@ package inha.primero_server.domain.tree.service;
 
 import inha.primero_server.domain.tree.dto.request.TreeCreateRequest;
 import inha.primero_server.domain.tree.dto.request.TreeUpdateRequest;
+import inha.primero_server.domain.tree.dto.response.TreeResponse;
 import inha.primero_server.domain.tree.entity.Tree;
 import inha.primero_server.domain.tree.mapper.TreeMapper;
 import inha.primero_server.domain.tree.repository.TreeRepository;
@@ -15,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.util.List;
+
 import static inha.primero_server.global.common.Constant.TREE_IMAGE_DIR;
 
 @Service
@@ -26,6 +29,15 @@ public class TreeServiceImpl implements TreeService{
     private final TreeMapper treeMapper;
     private final StorageProvider storageProvider;
     private final UserRepository userRepository;
+
+    @Override
+    public List<TreeResponse> getTreeList(Long userId) {
+        User findUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        return treeRepository.findTreesByUser(findUser)
+                .stream()
+                .map(treeMapper::treeToTreeResponse)
+                .toList();
+    }
 
     @Override
     public void createTree(TreeCreateRequest treeCreateRequest, MultipartFile photo, String email){
@@ -42,10 +54,9 @@ public class TreeServiceImpl implements TreeService{
     }
 
     @Override
-    public void updateTree(TreeUpdateRequest treeUpdateRequest, MultipartFile photo, Long userId) {
-        User findUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+    public void updateTree(TreeUpdateRequest treeUpdateRequest, MultipartFile photo, Long treeId) {
+        Tree tree = treeRepository.findById(treeId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 나무입니다."));
 
-        Tree tree = treeRepository.findByUser(findUser);
         tree.updateTree(treeUpdateRequest.latitude(), treeUpdateRequest.longitude());
 
         if(!photo.isEmpty()){
