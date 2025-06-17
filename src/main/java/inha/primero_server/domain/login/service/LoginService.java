@@ -32,7 +32,7 @@ public class LoginService {
             throw new CustomException(ErrorCode.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
         }
 
-        Character character = characterRepository.findByUserId(user.getUserId())
+        Character character = characterRepository.findByUserUserId(user.getUserId())
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "캐릭터 정보를 찾을 수 없습니다."));
 
         String token = jwtUtil.createAccessToken(user.getUserId(), user.getEmail(), user.getRole().name());

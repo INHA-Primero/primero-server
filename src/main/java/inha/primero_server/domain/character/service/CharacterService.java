@@ -28,7 +28,7 @@ public class CharacterService {
     }
 
     public Character getCharacter(Long userId) {
-        return characterRepository.findByUserId(userId)
+        return characterRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "Character not found"));
     }
 
