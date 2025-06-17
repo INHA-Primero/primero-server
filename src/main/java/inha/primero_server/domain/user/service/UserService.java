@@ -12,6 +12,8 @@ import inha.primero_server.domain.user.repository.UserRepository;
 import inha.primero_server.global.common.error.CustomException;
 import inha.primero_server.global.common.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final StringRedisTemplate redisTemplate;
-    // private final BarcodeService barcodeService;
+    private final BarcodeService barcodeService;
 
     @Transactional
     public void signup(UserSignUpRequest request) {
@@ -44,6 +46,7 @@ public class UserService {
             throw new CustomException(ErrorCode.DUPLICATE_OBJECT, "이미 가입된 이메일입니다.");
         }
 
+        // 이메일 인증은 테스트 시 주석 처리
         // String verified = redisTemplate.opsForValue().get(request.getEmail());
         // if (!"VERIFIED".equals(verified)) {
         //     throw new CustomException(ErrorCode.UNAUTHORIZED, "이메일 인증이 필요합니다.");
@@ -52,10 +55,10 @@ public class UserService {
         if (userRepository.existsByStudentNumber(request.getStudentNumber())) {
             throw new CustomException(ErrorCode.DUPLICATE_OBJECT, "이미 등록된 학번입니다.");
         }
+
         if (userRepository.existsByDeviceUuid(request.getDeviceUuid())) {
             throw new CustomException(ErrorCode.DUPLICATE_OBJECT, "해당 기기는 이미 가입되어 있습니다.");
         }
-
 
         User user = User.create(
                 request.getEmail(),
@@ -67,8 +70,8 @@ public class UserService {
         );
 
         userRepository.save(user);
-        // 바코드 생성 로직
-        // barcodeService.generateFor(user);
+
+        barcodeService.generateFor(user);
     }
 
     public UserResponse getUser(Long userId) {
@@ -85,6 +88,7 @@ public class UserService {
         if (request.password() != null) {
             user.encodePassword(passwordEncoder.encode(request.password()));
         }
+
         user.updateInfo(request.treeName(), user.getPassword(), request.profileImgPath());
         return UserResponse.of(user);
     }
@@ -94,6 +98,31 @@ public class UserService {
         User user = userRepository.findByUserIdAndStatus(userId, Status.ACTIVE)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "존재하지 않는 사용자입니다."));
         user.delete();
+    }
+
+
+    @Bean
+    public CommandLineRunner createTestUser() {
+        return args -> {
+            String email = "test@inha.edu";
+
+            if (userRepository.findByEmail(email).isEmpty()) {
+                User user = User.create(
+                        email,
+                        "테스트계정",
+                        20250616,
+                        "테스트나무",
+                        passwordEncoder.encode("test1234"),
+                        "device-uuid-1234"
+                );
+
+                userRepository.save(user);
+                barcodeService.generateFor(user);
+                System.out.println("테스트 계정 생성 완료: " + email);
+            } else {
+                System.out.println("테스트 계정 이미 존재: " + email);
+            }
+        };
     }
 
     public UserRankingResponse getUserRanking(Long userId) {

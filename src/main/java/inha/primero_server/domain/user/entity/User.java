@@ -1,6 +1,7 @@
 package inha.primero_server.domain.user.entity;
 
 import inha.primero_server.domain.inquiry.entity.Inquiry;
+import inha.primero_server.domain.tree.entity.Tree;
 import inha.primero_server.global.common.entity.Role;
 import inha.primero_server.global.common.entity.Status;
 import inha.primero_server.global.common.entity.BaseEntity;
@@ -58,6 +59,9 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<Inquiry> inquiryList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Tree> treeList = new ArrayList<>();
 
     public static User create(String email, String name, Integer studentNumber, String treeName, String password, String deviceUuid) {
         User user = new User();

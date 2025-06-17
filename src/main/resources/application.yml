@@ -27,5 +27,35 @@ spring:
         show_sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
+  cloud:
+    gcp:
+      storage:
+        project-id: ${STORAGE_PROJECT_ID}
+        bucket: ${STORAGE_BUCKET}
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  
+  data:
+     redis:
+       host: localhost
+       port: 6379
+       timeout: 6000
+
+  mail:
+     host: smtp.naver.com
+     port: 465
+     username: ${user_name}
+     password: ${my_password}
+     properties:
+       mail.smtp.auth: true
+       mail.smtp.ssl.enable: true
+
+gcp:
+  key: classpath:${GCP_STORAGE_KEY}
+
 jwt:
   secret: ${JWT_SECRET}
+
