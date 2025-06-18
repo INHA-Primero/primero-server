@@ -1,5 +1,6 @@
 package inha.primero_server.domain.character.controller;
 
+import inha.primero_server.domain.character.dto.response.CharacterRes;
 import inha.primero_server.domain.character.entity.Character;
 import inha.primero_server.domain.character.service.CharacterService;
 import inha.primero_server.global.common.JwtUtil;
@@ -10,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/characters")
+@RequestMapping("/api/v1/characters")
 @RequiredArgsConstructor
 public class CharacterController {
 
@@ -69,7 +70,7 @@ public class CharacterController {
     }
 
     @PostMapping("/me/watering")
-    public ResponseEntity<Character> useWateringChance(
+    public ResponseEntity<CharacterRes> useWateringChance(
             @RequestHeader("Authorization") String authorizationHeader
     ) throws IllegalAccessException {
         if (authorizationHeader == null) {
