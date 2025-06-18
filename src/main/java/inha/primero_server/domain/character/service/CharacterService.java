@@ -1,5 +1,6 @@
 package inha.primero_server.domain.character.service;
 
+import inha.primero_server.domain.character.dto.response.CharacterRes;
 import inha.primero_server.domain.character.entity.Character;
 import inha.primero_server.domain.character.repository.CharacterRepository;
 import inha.primero_server.domain.user.entity.User;
@@ -52,11 +53,11 @@ public class CharacterService {
     }
 
     @Transactional
-    public Character useWateringChance(Long userId) {
+    public CharacterRes useWateringChance(Long userId) {
         Character character = getCharacter(userId);
         try {
             character.useWateringChance();
-            return character;
+            return new CharacterRes(character);
         } catch (IllegalStateException e) {
             throw new CustomException(ErrorCode.INVALID_PARAMETER, "No watering chances available");
         }
