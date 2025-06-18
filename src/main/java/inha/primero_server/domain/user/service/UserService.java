@@ -1,6 +1,8 @@
 package inha.primero_server.domain.user.service;
 
 import inha.primero_server.domain.barcode.service.BarcodeService;
+import inha.primero_server.domain.character.entity.Character;
+import inha.primero_server.domain.character.repository.CharacterRepository;
 import inha.primero_server.domain.user.dto.request.UserSignUpRequest;
 import inha.primero_server.domain.user.dto.request.UserModifyRequest;
 import inha.primero_server.domain.user.dto.response.UserResponse;
@@ -31,6 +33,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final StringRedisTemplate redisTemplate;
     private final BarcodeService barcodeService;
+    private final CharacterRepository characterRepository;
 
     @Transactional
     public void signup(UserSignUpRequest request) {
@@ -70,6 +73,10 @@ public class UserService {
         );
 
         userRepository.save(user);
+
+        Character character = Character.create(user, request.getTreeName());
+
+        characterRepository.save(character);
 
         barcodeService.generateFor(user);
     }
