@@ -72,7 +72,12 @@ public class CharacterController {
     public ResponseEntity<Character> useWateringChance(
             @RequestHeader("Authorization") String authorizationHeader
     ) throws IllegalAccessException {
-        // Bearer 토큰을 추출
+        if (authorizationHeader == null) {
+            System.out.println("Authorization header is missing");
+        } else {
+            System.out.println("Authorization header: " + authorizationHeader);
+        }
+
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             throw new IllegalAccessException("incorrect token type");
         }
