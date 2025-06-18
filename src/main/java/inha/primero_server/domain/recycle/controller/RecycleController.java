@@ -5,6 +5,7 @@ import inha.primero_server.domain.recycle.dto.RecycleListResponseDto;
 import inha.primero_server.domain.recycle.dto.request.RecycleLogRequest;
 import inha.primero_server.domain.recycle.dto.response.RecycleLogResponse;
 import inha.primero_server.domain.recycle.service.RecycleService;
+import inha.primero_server.global.common.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,21 +20,39 @@ import org.springframework.web.bind.annotation.*;
 public class RecycleController {
 
     private final RecycleService recycleService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/failure")
     public ResponseEntity<RecycleLogResponse> createFailureLog(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody RecycleLogRequest request) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody RecycleLogRequest request) throws IllegalAccessException {
+        // Bearer 토큰을 추출
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalAccessException("incorrect token type");
+        }
+
+        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+
+        // JwtUtil을 사용하여 userId를 추출
+        Long userId = jwtUtil.getUserId(token);
+
         request.setUserId(userId);
         return ResponseEntity.ok(recycleService.createFailureLog(request));
     }
 
     @PostMapping("/success")
     public ResponseEntity<RecycleLogResponse> createSuccessLog(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody RecycleLogRequest request) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody RecycleLogRequest request) throws IllegalAccessException {
+        // Bearer 토큰을 추출
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalAccessException("incorrect token type");
+        }
+
+        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+
+        // JwtUtil을 사용하여 userId를 추출
+        Long userId = jwtUtil.getUserId(token);
         request.setUserId(userId);
         return ResponseEntity.ok(recycleService.createSuccessLog(request));
     }
