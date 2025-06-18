@@ -2,6 +2,7 @@ package inha.primero_server.domain.character.controller;
 
 import inha.primero_server.domain.character.entity.Character;
 import inha.primero_server.domain.character.service.CharacterService;
+import inha.primero_server.global.common.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,32 +15,73 @@ import org.springframework.web.bind.annotation.*;
 public class CharacterController {
 
     private final CharacterService characterService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping
     public ResponseEntity<Character> createCharacter(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam String nickname) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam String nickname) throws IllegalAccessException {
+        // Bearer 토큰을 추출
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalAccessException("incorrect token type");
+        }
+
+        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+
+        // JwtUtil을 사용하여 userId를 추출
+        Long userId = jwtUtil.getUserId(token);
         return ResponseEntity.ok(characterService.createCharacter(userId, nickname));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Character> getCurrentCharacter(@AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+    public ResponseEntity<Character> getCurrentCharacter(
+            @RequestHeader("Authorization") String authorizationHeader
+    ) throws IllegalAccessException {
+        // Bearer 토큰을 추출
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalAccessException("incorrect token type");
+        }
+
+        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+
+        // JwtUtil을 사용하여 userId를 추출
+        Long userId = jwtUtil.getUserId(token);
+
         return ResponseEntity.ok(characterService.getCharacter(userId));
     }
 
     @PutMapping("/me")
     public ResponseEntity<Character> updateCurrentCharacter(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam String nickname) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam String nickname) throws IllegalAccessException {
+
+        // Bearer 토큰을 추출
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalAccessException("incorrect token type");
+        }
+
+        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+
+        // JwtUtil을 사용하여 userId를 추출
+        Long userId = jwtUtil.getUserId(token);
+
         return ResponseEntity.ok(characterService.updateCharacter(userId, nickname));
     }
 
     @PostMapping("/me/watering")
-    public ResponseEntity<Character> useWateringChance(@AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+    public ResponseEntity<Character> useWateringChance(
+            @RequestHeader("Authorization") String authorizationHeader
+    ) throws IllegalAccessException {
+        // Bearer 토큰을 추출
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalAccessException("incorrect token type");
+        }
+
+        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+
+        // JwtUtil을 사용하여 userId를 추출
+        Long userId = jwtUtil.getUserId(token);
+
         return ResponseEntity.ok(characterService.useWateringChance(userId));
     }
 }
