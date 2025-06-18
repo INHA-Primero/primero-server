@@ -1,9 +1,13 @@
 package inha.primero_server.domain.user.service;
 
 import inha.primero_server.domain.barcode.service.BarcodeService;
+import inha.primero_server.domain.character.entity.Character;
+import inha.primero_server.domain.character.repository.CharacterRepository;
 import inha.primero_server.domain.user.dto.request.UserSignUpRequest;
 import inha.primero_server.domain.user.dto.request.UserModifyRequest;
 import inha.primero_server.domain.user.dto.response.UserResponse;
+import inha.primero_server.domain.user.dto.response.UserInfoResponse;
+import inha.primero_server.domain.user.dto.response.UserRankingResponse;
 import inha.primero_server.domain.user.entity.User;
 import inha.primero_server.global.common.entity.Status;
 import inha.primero_server.domain.user.repository.UserRepository;
@@ -17,6 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -26,6 +33,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final StringRedisTemplate redisTemplate;
     private final BarcodeService barcodeService;
+    private final CharacterRepository characterRepository;
 
     @Transactional
     public void signup(UserSignUpRequest request) {
@@ -65,6 +73,10 @@ public class UserService {
         );
 
         userRepository.save(user);
+
+        Character character = Character.create(user, request.getTreeName());
+
+        characterRepository.save(character);
 
         barcodeService.generateFor(user);
     }
@@ -118,5 +130,38 @@ public class UserService {
                 System.out.println("테스트 계정 이미 존재: " + email);
             }
         };
+    }
+
+    public UserRankingResponse getUserRanking(Long userId) {
+        User user = userRepository.findByUserIdAndStatus(userId, Status.ACTIVE)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "존재하지 않는 사용자입니다."));
+
+        List<User> allUsers = userRepository.findAll().stream()
+                .filter(u -> u.getStatus() == Status.ACTIVE)
+                .sorted((u1, u2) -> u2.getTotalPoint().compareTo(u1.getTotalPoint()))
+                .collect(Collectors.toList());
+
+        long ranking = allUsers.indexOf(user) + 1;
+
+        return UserRankingResponse.builder()
+                .nickname(user.getTreeName())
+                .ranking(ranking)
+                .totalPoint(user.getTotalPoint())
+                .build();
+    }
+
+    public UserInfoResponse getUserInfo(Long userId) {
+        User user = userRepository.findByUserIdAndStatus(userId, Status.ACTIVE)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "존재하지 않는 사용자입니다."));
+
+        return UserInfoResponse.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .studentNumber(user.getStudentNumber())
+                .nickname(user.getTreeName())
+                .profileImgPath(user.getProfileImgPath())
+                .totalPoint(user.getTotalPoint())
+                .build();
     }
 }

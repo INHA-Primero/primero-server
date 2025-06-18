@@ -1,5 +1,7 @@
 package inha.primero_server.domain.login.service;
 
+import inha.primero_server.domain.character.entity.Character;
+import inha.primero_server.domain.character.repository.CharacterRepository;
 import inha.primero_server.domain.login.dto.request.LoginReq;
 import inha.primero_server.domain.login.dto.response.LoginRes;
 import inha.primero_server.domain.login.repository.LoginRepository;
@@ -19,6 +21,7 @@ public class LoginService {
 
     private final LoginRepository loginRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CharacterRepository characterRepository;
     private final JwtUtil jwtUtil;
 
     public LoginRes login(LoginReq request) {
@@ -29,7 +32,18 @@ public class LoginService {
             throw new CustomException(ErrorCode.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
         }
 
+        Character character = characterRepository.findByUserUserId(user.getUserId())
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND, "캐릭터 정보를 찾을 수 없습니다."));
+
         String token = jwtUtil.createAccessToken(user.getUserId(), user.getEmail(), user.getRole().name());
-        return new LoginRes(user.getUserId(), user.getTreeName(), token);
+
+        return LoginRes.of(
+                user.getUserId(),
+                user.getTreeName(),
+                character.getExp(),
+                character.getWateringChance(),
+                character.getNickname(),
+                token
+        );
     }
 }
