@@ -104,12 +104,12 @@ public class RecycleService {
                 .build();
     }
 
-    public Page<RecycleListResponseDto> getAllRecycles(Pageable pageable) {
-        return recycleRepository.findAllByOrderByTakenAtDesc(pageable)
+    public Page<RecycleListResponseDto> getAllRecycles(Pageable pageable, Long userId) {
+        return recycleRepository.findAllByUserUserIdOrderByTakenAtDesc(userId, pageable)
                 .map(RecycleListResponseDto::new);
     }
 
-    public RecycleDetailResponseDto getRecycleById(Long id) {
+    public RecycleDetailResponseDto getRecycleById(Long id, Long userId) {
         Recycle recycle = recycleRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recycle not found with id: " + id));
         return new RecycleDetailResponseDto(recycle);

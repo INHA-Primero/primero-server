@@ -58,13 +58,40 @@ public class RecycleController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<RecycleListResponseDto>> getAllRecycles(Pageable pageable) {
-        return ResponseEntity.ok(recycleService.getAllRecycles(pageable));
+    public ResponseEntity<Page<RecycleListResponseDto>> getAllRecycles(
+            Pageable pageable,
+            @RequestHeader("Authorization") String authorizationHeader
+    ) throws IllegalAccessException {
+        // Bearer 토큰을 추출
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalAccessException("incorrect token type");
+        }
+
+        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+
+        // JwtUtil을 사용하여 userId를 추출
+        Long userId = jwtUtil.getUserId(token);
+
+        return ResponseEntity.ok(recycleService.getAllRecycles(pageable, userId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RecycleDetailResponseDto> getRecycleById(@PathVariable Long id) {
-        return ResponseEntity.ok(recycleService.getRecycleById(id));
+    public ResponseEntity<RecycleDetailResponseDto> getRecycleById(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authorizationHeader
+    ) throws IllegalAccessException {
+
+        // Bearer 토큰을 추출
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalAccessException("incorrect token type");
+        }
+
+        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+
+        // JwtUtil을 사용하여 userId를 추출
+        Long userId = jwtUtil.getUserId(token);
+
+        return ResponseEntity.ok(recycleService.getRecycleById(id, userId));
     }
 
 }
