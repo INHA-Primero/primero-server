@@ -24,36 +24,13 @@ public class RecycleController {
 
     @PostMapping("/failure")
     public ResponseEntity<RecycleLogResponse> createFailureLog(
-            @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody RecycleLogRequest request) throws IllegalAccessException {
-        // Bearer 토큰을 추출
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalAccessException("incorrect token type");
-        }
-
-        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
-
-        // JwtUtil을 사용하여 userId를 추출
-        Long userId = jwtUtil.getUserId(token);
-
-        request.setUserId(userId);
         return ResponseEntity.ok(recycleService.createFailureLog(request));
     }
 
     @PostMapping("/success")
     public ResponseEntity<RecycleLogResponse> createSuccessLog(
-            @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody RecycleLogRequest request) throws IllegalAccessException {
-        // Bearer 토큰을 추출
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalAccessException("incorrect token type");
-        }
-
-        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
-
-        // JwtUtil을 사용하여 userId를 추출
-        Long userId = jwtUtil.getUserId(token);
-        request.setUserId(userId);
         return ResponseEntity.ok(recycleService.createSuccessLog(request));
     }
 
