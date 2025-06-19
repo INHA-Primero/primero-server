@@ -20,14 +20,14 @@ public class CharacterController {
 
     @PostMapping
     public ResponseEntity<Character> createCharacter(
-            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestParam String nickname) throws IllegalAccessException {
         // Bearer 토큰을 추출
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalAccessException("incorrect token type");
-        }
+//        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+//            throw new IllegalAccessException("incorrect token type");
+//        }
 
-        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+        String token = authorizationHeader; // "Bearer " 부분을 제거
 
         // JwtUtil을 사용하여 userId를 추출
         Long userId = jwtUtil.getUserId(token);
@@ -35,55 +35,50 @@ public class CharacterController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Character> getCurrentCharacter(
-            @RequestHeader("Authorization") String authorizationHeader
+    public ResponseEntity<CharacterRes> getCurrentCharacter(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
     ) throws IllegalAccessException {
-        // Bearer 토큰을 추출
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalAccessException("incorrect token type");
-        }
+//        // Bearer 토큰을 추출
+//        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+//            throw new IllegalAccessException("incorrect token type");
+//        }
 
-        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+        String token = authorizationHeader; // "Bearer " 부분을 제거
 
         // JwtUtil을 사용하여 userId를 추출
         Long userId = jwtUtil.getUserId(token);
 
-        return ResponseEntity.ok(characterService.getCharacter(userId));
+        return ResponseEntity.ok(new CharacterRes(characterService.getCharacter(userId)));
     }
 
     @PutMapping("/me")
-    public ResponseEntity<Character> updateCurrentCharacter(
-            @RequestHeader("Authorization") String authorizationHeader,
+    public ResponseEntity<CharacterRes> updateCurrentCharacter(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestParam String nickname) throws IllegalAccessException {
 
-        // Bearer 토큰을 추출
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalAccessException("incorrect token type");
-        }
+//        // Bearer 토큰을 추출
+//        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+//            throw new IllegalAccessException("incorrect token type");
+//        }
 
-        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+        String token = authorizationHeader; // "Bearer " 부분을 제거
 
         // JwtUtil을 사용하여 userId를 추출
         Long userId = jwtUtil.getUserId(token);
 
-        return ResponseEntity.ok(characterService.updateCharacter(userId, nickname));
+        return ResponseEntity.ok(new CharacterRes(characterService.updateCharacter(userId, nickname)));
     }
 
     @PostMapping("/me/watering")
     public ResponseEntity<CharacterRes> useWateringChance(
-            @RequestHeader("Authorization") String authorizationHeader
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
     ) throws IllegalAccessException {
-        if (authorizationHeader == null) {
-            System.out.println("Authorization header is missing");
-        } else {
-            System.out.println("Authorization header: " + authorizationHeader);
-        }
+        //        // Bearer 토큰을 추출
+//        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+//            throw new IllegalAccessException("incorrect token type");
+//        }
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalAccessException("incorrect token type");
-        }
-
-        String token = authorizationHeader.substring(7); // "Bearer " 부분을 제거
+        String token = authorizationHeader; // "Bearer " 부분을 제거
 
         // JwtUtil을 사용하여 userId를 추출
         Long userId = jwtUtil.getUserId(token);
