@@ -28,6 +28,7 @@ public class Recycle extends BaseEntity {
     private Bin bin;
 
     @Column(name = "record_img_path", nullable = false)
+    @Setter
     private String recordImgPath;
 
     @Enumerated(EnumType.STRING)
