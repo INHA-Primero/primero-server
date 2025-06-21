@@ -11,14 +11,21 @@ import inha.primero_server.domain.recycle.dto.response.RecycleLogResponse;
 import inha.primero_server.domain.recycle.entity.Material;
 import inha.primero_server.domain.recycle.entity.Recycle;
 import inha.primero_server.domain.recycle.repository.RecycleRepository;
+import inha.primero_server.domain.tree.entity.Tree;
 import inha.primero_server.domain.user.entity.User;
 import inha.primero_server.domain.user.repository.UserRepository;
+import inha.primero_server.domain.util.storage.StorageProvider;
+import inha.primero_server.domain.util.storage.dto.StorageUploadRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import static inha.primero_server.global.common.Constant.RECYCLE_IMAGE_DIR;
+import static inha.primero_server.global.common.Constant.TREE_IMAGE_DIR;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +36,7 @@ public class RecycleService {
     private final UserRepository userRepository;
     private final BinRepository binRepository;
     private final CharacterService characterService;
+    private final StorageProvider storageProvider;
 
     @Transactional
     public RecycleLogResponse createFailureLog(RecycleLogRequest request) {
@@ -113,5 +121,32 @@ public class RecycleService {
         Recycle recycle = recycleRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recycle not found with id: " + id));
         return new RecycleDetailResponseDto(recycle);
+    }
+
+    @Transactional
+    public void createRecycleLog(Long id, MultipartFile photo) {
+        User findUser = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        Bin bin = binRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Bin not found"));
+
+        // 1. Recycle 엔티티 생성
+        Recycle recycle = new Recycle(
+                findUser,
+                bin,
+                "",
+                Material.PLASTIC,
+                100,
+                true
+        );
+        Recycle saveRecycle = recycleRepository.save(recycle);
+
+        // 2. Photo 처리
+        String photoUrl = handlePhotoImage(photo, saveRecycle.getId(), findUser.getUserId());
+        saveRecycle.setRecordImgPath(photoUrl);
+    }
+
+    private String handlePhotoImage(MultipartFile photo, Long recycleId, Long userId) {
+        String path = RECYCLE_IMAGE_DIR + "/" + userId;
+        return storageProvider.multipartFileUpload(photo, new StorageUploadRequest(recycleId, path));
     }
 }

@@ -36,3 +36,4 @@ out/
 ### VS Code ###
 .vscode/
 **/src/main/resources/inharit-9efa718aee4a.json
+**/src/main/java/inha/primero_server/domain/auth/EmailSender.java
