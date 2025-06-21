@@ -40,6 +40,7 @@ public class RecycleService {
 
     @Transactional
     public RecycleLogResponse createFailureLog(RecycleLogRequest request) {
+        /*
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Bin bin = binRepository.findById(request.getBinId())
@@ -55,6 +56,9 @@ public class RecycleService {
         );
 
         recycleRepository.save(recycle);
+        */
+
+        // createRecycleLogV2(request, false, photo);
 
         return RecycleLogResponse.builder()
                 .success(false)
@@ -66,6 +70,7 @@ public class RecycleService {
 
     @Transactional
     public RecycleLogResponse createSuccessLog(RecycleLogRequest request) {
+        /*
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Bin bin = binRepository.findById(request.getBinId())
@@ -88,6 +93,7 @@ public class RecycleService {
         
         // Update character watering chance
         characterService.addWateringChance(user.getUserId(), 1);
+        */
 
         return RecycleLogResponse.builder()
                 .success(true)
@@ -125,7 +131,8 @@ public class RecycleService {
 
     @Transactional
     public void createRecycleLog(Long id, MultipartFile photo) {
-        User findUser = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        User findUser = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         Bin bin = binRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("Bin not found"));
 
@@ -143,6 +150,71 @@ public class RecycleService {
         // 2. Photo 처리
         String photoUrl = handlePhotoImage(photo, saveRecycle.getId(), findUser.getUserId());
         saveRecycle.setRecordImgPath(photoUrl);
+    }
+
+    @Transactional
+    public RecycleLogResponse createRecycleLogV2(
+            RecycleLogRequest request, MultipartFile photo
+    ) {
+        User findUser = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        Bin bin = binRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Bin not found"));
+
+        Recycle recycle = null;
+
+        // 1. Recycle 엔티티 생성
+        // success
+        if(request.getResult()){
+            recycle = new Recycle(
+                    findUser,
+                    bin,
+                    "",
+                    Material.PLASTIC,
+                    100,
+                    request.getResult()
+            );
+
+            // Update user points
+            findUser.addTotalPoint(100);
+            userRepository.save(findUser);
+
+            // Update character watering chance
+            characterService.addWateringChance(findUser.getUserId(), 1);
+
+        // failure
+        }else{
+            recycle = new Recycle(
+                    findUser,
+                    bin,
+                    "",
+                    Material.GENERAL,
+                    0,
+                    request.getResult()
+            );
+        }
+
+        Recycle saveRecycle = recycleRepository.save(recycle);
+
+        // 2. Photo 처리
+        String photoUrl = handlePhotoImage(photo, saveRecycle.getId(), findUser.getUserId());
+        saveRecycle.setRecordImgPath(photoUrl);
+
+        if(request.getResult()){
+            return RecycleLogResponse.builder()
+                    .success(request.getResult())
+                    .point(100)
+                    .statusCode(HttpStatus.CREATED.value())
+                    .message("Create Success Log Successfully")
+                    .build();
+        }else{
+            return RecycleLogResponse.builder()
+                    .success(request.getResult())
+                    .point(0)
+                    .statusCode(HttpStatus.CREATED.value())
+                    .message("Create Failure Log Successfully")
+                    .build();
+        }
     }
 
     private String handlePhotoImage(MultipartFile photo, Long recycleId, Long userId) {
