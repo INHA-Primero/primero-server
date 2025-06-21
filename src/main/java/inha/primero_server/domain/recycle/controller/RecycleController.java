@@ -1,5 +1,6 @@
 package inha.primero_server.domain.recycle.controller;
 
+import com.google.api.Http;
 import inha.primero_server.domain.recycle.dto.RecycleDetailResponseDto;
 import inha.primero_server.domain.recycle.dto.RecycleListResponseDto;
 import inha.primero_server.domain.recycle.dto.request.RecycleLogRequest;
@@ -72,4 +73,22 @@ public class RecycleController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PostMapping("/create-dummy-log")
+    public ResponseEntity<Void> createDummyLog(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
+    ) throws IllegalAccessException {
+
+        String token = authorizationHeader; // "Bearer " 부분을 제거
+
+        // JwtUtil을 사용하여 userId를 추출
+        Long userId = jwtUtil.getUserId(token);
+
+        recycleService.createFailureLog(new RecycleLogRequest(1L, "testImgUrl", userId));
+        recycleService.createFailureLog(new RecycleLogRequest(2L, "testImgUrl", userId));
+        recycleService.createSuccessLog(new RecycleLogRequest(1L, "testImgUrl", userId));
+        recycleService.createSuccessLog(new RecycleLogRequest(2L, "testImgUrl", userId));
+        recycleService.createSuccessLog(new RecycleLogRequest(2L, "testImgUrl", userId));
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }
