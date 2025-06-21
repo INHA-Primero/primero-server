@@ -13,5 +13,5 @@ public class RecycleLogRequest {
     private Long binId;
     private String imgUrl;
     private Long userId;
-
+    private Boolean result;
 }
