@@ -20,7 +20,7 @@ public class EmailSender {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(content, true); // HTML 가능
-            helper.setFrom("hyeonhoi11@naver.com");
+            helper.setFrom("dhtnqls0103@naver.com");
 
             javaMailSender.send(message);
         } catch (MessagingException e) {

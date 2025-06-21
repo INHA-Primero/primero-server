@@ -26,6 +26,7 @@ public class JwtUtil {
     public void init() {
         byte[] decodedKey = java.util.Base64.getDecoder().decode(secretKeyString);
         this.secretKey = Keys.hmacShaKeyFor(decodedKey);
+        System.out.println("secret: " + secretKeyString);
     }
 
     /**

@@ -9,10 +9,13 @@ import inha.primero_server.global.common.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/recycles")
@@ -69,6 +72,13 @@ public class RecycleController {
         Long userId = jwtUtil.getUserId(token);
 
         return ResponseEntity.ok(recycleService.getRecycleById(id, userId));
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<Void> createRecycleLog(@PathVariable Long id,
+                                                 @RequestPart(value = "photo", required = false) MultipartFile photo) {
+        recycleService.createRecycleLog(id, photo);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }
