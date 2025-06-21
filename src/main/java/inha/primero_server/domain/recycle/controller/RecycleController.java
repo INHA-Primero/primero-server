@@ -88,7 +88,7 @@ public class RecycleController {
 
     @PostMapping(value = "/v2", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RecycleLogResponse> createRecycleLogV2(
-            @RequestBody RecycleLogRequest request,
+            @RequestPart(value = "request") RecycleLogRequest request,
             @RequestPart(value = "photo", required = false) MultipartFile photo
     ){
         return ResponseEntity.ok(recycleService.createRecycleLogV2(request, photo));
@@ -106,15 +106,15 @@ public class RecycleController {
         Long userId = jwtUtil.getUserId(token);
 
         recycleService.createRecycleLogV2(
-                new RecycleLogRequest(1L, "testImgUrl", userId, false), photo);
+                new RecycleLogRequest(1L, userId, false), photo);
         recycleService.createRecycleLogV2(
-                new RecycleLogRequest(2L, "testImgUrl", userId, false), photo);
+                new RecycleLogRequest(2L, userId, false), photo);
         recycleService.createRecycleLogV2(
-                new RecycleLogRequest(1L, "testImgUrl", userId, true), photo);
+                new RecycleLogRequest(1L, userId, true), photo);
         recycleService.createRecycleLogV2(
-                new RecycleLogRequest(2L, "testImgUrl", userId, true), photo);
+                new RecycleLogRequest(2L, userId, true), photo);
         recycleService.createRecycleLogV2(
-                new RecycleLogRequest(2L, "testImgUrl", userId, true), photo);
+                new RecycleLogRequest(2L, userId, true), photo);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

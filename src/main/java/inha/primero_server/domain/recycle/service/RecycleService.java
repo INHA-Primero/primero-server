@@ -203,16 +203,16 @@ public class RecycleService {
         if(request.getResult()){
             return RecycleLogResponse.builder()
                     .success(request.getResult())
-                    .point(0)
+                    .point(100)
                     .statusCode(HttpStatus.CREATED.value())
-                    .message("Create Failure Log Successfully")
+                    .message("Create Success Log Successfully")
                     .build();
         }else{
             return RecycleLogResponse.builder()
                     .success(request.getResult())
-                    .point(100)
+                    .point(0)
                     .statusCode(HttpStatus.CREATED.value())
-                    .message("Create Success Log Successfully")
+                    .message("Create Failure Log Successfully")
                     .build();
         }
     }
