@@ -77,14 +77,14 @@ public class RecycleController {
         return ResponseEntity.ok(recycleService.getRecycleById(id, userId));
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<Void> createRecycleLog(
-            @PathVariable Long id,
-            @RequestPart(value = "photo", required = false) MultipartFile photo
-    ) {
-        recycleService.createRecycleLog(id, photo);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+//    @PostMapping("/{id}")
+//    public ResponseEntity<Void> createRecycleLog(
+//            @PathVariable Long id,
+//            @RequestPart(value = "photo", required = false) MultipartFile photo
+//    ) {
+//        recycleService.createRecycleLog(id, photo);
+//        return ResponseEntity.status(HttpStatus.CREATED).build();
+//    }
 
     @PostMapping(value = "/v2", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RecycleLogResponse> createRecycleLogV2(
